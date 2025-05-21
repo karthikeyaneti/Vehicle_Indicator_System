@@ -27,7 +27,7 @@ def safe_serial_read(ser, max_retries=3):
 
 def main():
     try:
-        ser = serial.Serial('COM9', 115200, timeout=1)
+        ser = serial.Serial('COM6', 115200, timeout=1)
         
         with open("indicator_log.csv", "a", encoding='utf-8') as log_file:
             # Write header if new file

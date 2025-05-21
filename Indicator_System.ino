@@ -50,6 +50,31 @@ const int BUTTON_PRESS_DURATION = 1000; // 1 second for button press
 #define CHARACTERISTIC_UUID_TX "beb5483e-36e1-4688-b7f5-ea07361b26a8" // For sending to phone
 #define CHARACTERISTIC_UUID_RX "6e400002-b5a3-f393-e0a9-e50e24dcca9e" // For receiving from phone
 
+void logEvent(const char* event) {
+  // Send to both serial ports for debugging
+  Serial.printf("%lu,%s,%d,%d,%d,%d,%d\n",
+    millis(),
+    event,
+    leftIndicatorOn ? 1 : 0,
+    rightIndicatorOn ? 1 : 0,
+    hazardOn ? 1 : 0,
+    digitalRead(LEFT_BUTTON),
+    digitalRead(RIGHT_BUTTON)
+  );
+  
+  SerialUART.printf("%lu,%s,%d,%d,%d,%d,%d\n\r",
+    millis(),
+    event,
+    leftIndicatorOn ? 1 : 0,
+    rightIndicatorOn ? 1 : 0,
+    hazardOn ? 1 : 0,
+    digitalRead(LEFT_BUTTON),
+    digitalRead(RIGHT_BUTTON)
+  );
+  
+  SerialUART.flush();
+}
+
 void handleBLECommand(String cmd);
 
 BLECharacteristic *pCharacteristic;
@@ -60,11 +85,13 @@ class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
       Serial.println("Device connected");
+      logEvent("Bluetooth_Connected");
     }
 
     void onDisconnect(BLEServer* pServer) {
       deviceConnected = false;
       Serial.println("Device disconnected");
+      logEvent("Bluetooth_Disconnected");
       pServer->startAdvertising(); // Restart advertising
     }
 };
@@ -173,31 +200,6 @@ void setup() {
 
   setupBLE();
 
-}
-
-void logEvent(const char* event) {
-  // Send to both serial ports for debugging
-  Serial.printf("%lu,%s,%d,%d,%d,%d,%d\n",
-    millis(),
-    event,
-    leftIndicatorOn ? 1 : 0,
-    rightIndicatorOn ? 1 : 0,
-    hazardOn ? 1 : 0,
-    digitalRead(LEFT_BUTTON),
-    digitalRead(RIGHT_BUTTON)
-  );
-  
-  SerialUART.printf("%lu,%s,%d,%d,%d,%d,%d\n\r",
-    millis(),
-    event,
-    leftIndicatorOn ? 1 : 0,
-    rightIndicatorOn ? 1 : 0,
-    hazardOn ? 1 : 0,
-    digitalRead(LEFT_BUTTON),
-    digitalRead(RIGHT_BUTTON)
-  );
-  
-  SerialUART.flush();
 }
 
 void processButtonPresses() {
